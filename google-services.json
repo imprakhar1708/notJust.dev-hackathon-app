@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "376798649364",
+    "project_id": "svnit-canteen",
+    "storage_bucket": "svnit-canteen.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376798649364:android:2e5b1f702ba84147485b01",
+        "android_client_info": {
+          "package_name": "com.imprakharzz.canteen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "376798649364-33erff7r5g64av9ijauhdk42n5js7r44.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.imprakharzz.canteen",
+            "certificate_hash": "191fec83dbcdb52b80a9064c1667c8c0a90f0439"
+          }
+        },
+        {
+          "client_id": "376798649364-9kcrv0tdemn339q0h9t0ojhl39a8obe3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5Hj7dWVFwSFqH0GkGIWhL2T9CO2gPG1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "376798649364-9kcrv0tdemn339q0h9t0ojhl39a8obe3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
