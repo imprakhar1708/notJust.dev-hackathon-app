@@ -1,1 +1,0 @@
-# notJust.dev-hackathon-app

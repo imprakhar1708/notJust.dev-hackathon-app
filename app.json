@@ -2,12 +2,15 @@
   "expo": {
     "name": "SVNIT Canteen",
     "slug": "canteen",
-    "plugins": ["@react-native-google-signin/google-signin",[
-      "@stripe/stripe-react-native",
-      {
-        "enableGooglePay": true
-      }
-    ]],
+    "plugins": [
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-updates",
+        {
+          "username": "imprakharzz"
+        }
+      ]
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,8 +18,12 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.imprakharzz.canteen"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,13 +33,20 @@
       "googleServicesFile": "./google-services.json",
       "package": "com.imprakharzz.canteen"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "extra": {
       "eas": {
         "projectId": "d3df7054-e76a-4487-83b0-978314dd674f"
       }
+    },
+    "updates": {
+      "requestHeaders": {
+        "expo-channel-name": "staging"
+      },
+      "url": "https://u.expo.dev/d3df7054-e76a-4487-83b0-978314dd674f"
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-7209361652520357~1645287729",
+    "ios_app_id": "ca-app-pub-7209361652520357~5282593486"
   }
 }

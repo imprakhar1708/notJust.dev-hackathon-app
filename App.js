@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native"
-import { Modal, View, Text, Pressable } from "react-native"
+import { Modal, View, Text, Pressable, Button } from "react-native"
 import MasterNav from "./nav/MasterNav"
 import { StatusBar } from "expo-status-bar"
 import { RootSiblingParent } from "react-native-root-siblings"
@@ -11,6 +11,7 @@ import {
 import NetInfo from "@react-native-community/netinfo"
 
 export default function App() {
+	const [loaded, setLoaded] = useState(false)
 	const [modalVisible, setModalVisible] = useState(false)
 	useEffect(() => {
 		const removeNetInfo = NetInfo.addEventListener((net) => {
@@ -19,6 +20,7 @@ export default function App() {
 		})
 		return () => removeNetInfo()
 	}, [])
+
 	return (
 		<NavigationContainer>
 			<RootSiblingParent>
