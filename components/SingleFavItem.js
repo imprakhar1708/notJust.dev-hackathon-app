@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from "react-native"
+import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native"
 import React, { useEffect, useState } from "react"
 import Toast from "react-native-root-toast"
 import { firebase } from "../Firebase/firebaseConfig"
@@ -38,7 +38,8 @@ const SingleFavItem = ({ Item, navigation }) => {
 					{item?.foodImageUrl && (
 						<Image
 							source={{ uri: item?.foodImageUrl }}
-							className='w-36 h-36 rounded-xl'
+							width={Dimensions.get("window").width / 2.6}
+							className='h-36 rounded-xl'
 						/>
 					)}
 				</View>

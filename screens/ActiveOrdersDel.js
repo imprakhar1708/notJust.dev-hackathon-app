@@ -92,15 +92,20 @@ const ActiveOrdersDel = ({ navigation }) => {
 	}, [notMyOrders, sort, filter])
 
 	const deleteActiveOrder = (id) => {
-		contractRef.get().then((doc) => {
+		contractRef.get().then(async (doc) => {
 			if (doc?.exists) {
 				const active = doc.data().active
 				const remainingActive = active.filter((item) => {
 					return item?.id != id
 				})
-				contractRef.update({
-					active: remainingActive,
-				})
+				await contractRef
+					.update({
+						active: remainingActive,
+					})
+					.then(() => {
+						navigation.navigate("History")
+						showDoneToast("Delivery Contract Accepted ✅")
+					})
 			}
 		})
 	}
@@ -133,11 +138,11 @@ const ActiveOrdersDel = ({ navigation }) => {
 							history: firestore.FieldValue.arrayUnion({
 								...Data,
 								status: "Waiting",
+								timeAdded: new Date().getTime().toString(),
 							}),
 							orderIds: firestore.FieldValue.arrayUnion(Data?.id),
 						})
 						deleteActiveOrder(Data?.id)
-						showDoneToast("Delivery Contract Accepted ✅")
 					} else {
 						acceptedContractRef.set({
 							active: [
@@ -157,11 +162,11 @@ const ActiveOrdersDel = ({ navigation }) => {
 							history: firestore.FieldValue.arrayUnion({
 								...Data,
 								status: "Waiting",
+								timeAdded: new Date().getTime().toString(),
 							}),
 							orderIds: firestore.FieldValue.arrayUnion(Data?.id),
 						})
 						deleteActiveOrder(Data?.id)
-						showDoneToast("Delivery Contract Accepted ✅")
 					}
 				})
 			})

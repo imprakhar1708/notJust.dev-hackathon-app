@@ -6,6 +6,8 @@ import {
 	ActivityIndicator,
 	Modal,
 	Pressable,
+	Dimensions,
+	useWindowDimensions,
 } from "react-native"
 import React, { useState } from "react"
 import {
@@ -54,6 +56,7 @@ const SingleActiveOrder = ({ data, mine, isacceptAvailable, acceptOrder }) => {
 			duration: 1500,
 		})
 	}
+	const Width = Dimensions.get("window").width
 	return (
 		<>
 			<View className=' p-2 mb-3 rounded-xl border-[.8px] border-gray-300'>
@@ -75,30 +78,35 @@ const SingleActiveOrder = ({ data, mine, isacceptAvailable, acceptOrder }) => {
 					}}
 					className='flex-row pb-2 justify-between'
 				>
-					<View className='flex-row px-2 items-center'>
+					<View className='flex-row  items-center'>
 						<View>
 							<Image
 								source={{ uri: data?.owner_info?.photoUrl }}
-								className='w-12 h-12 rounded-full'
+								className='w-8 h-8 rounded-full'
 							/>
 						</View>
 
 						<View className='px-1'>
-							<Text className='font-black text-xl text-gray-600'>
+							<Text
+								style={{
+									width: useWindowDimensions().width / 1.75,
+								}}
+								className='font-black text-[16px] text-gray-600'
+							>
 								{data?.owner_info.name}
 							</Text>
 							<View className='flex-row'>
 								<View className='flex-row items-center'>
 									<MapPinIcon size={15} color='orange' />
 									<View>
-										<Text className='text-xs font-bold text-gray-400'>
+										<Text className='text-xs text-gray-400'>
 											{data?.owner_info.hostel} &#11825;{" "}
 										</Text>
 									</View>
 								</View>
 								<View className='flex-row items-center'>
 									<BanknotesIcon size={15} color='green' />
-									<Text className='text-xs font-bold text-gray-400'>
+									<Text className='text-xs text-gray-400'>
 										{" "}
 										{data?.order_data.cp}
 									</Text>
@@ -152,10 +160,16 @@ const SingleActiveOrder = ({ data, mine, isacceptAvailable, acceptOrder }) => {
 				</View>
 				{innermodal && (
 					<>
-						<View className='absolute rounded-xl overflow-hidden top-0 w-[386px] h-[104px]'>
+						<View
+							style={{ width: Width / 1.1 }}
+							className='absolute rounded-xl overflow-hidden top-0 h-[107px]'
+						>
 							<View className='w-full h-full z-10 bg-black opacity-70' />
 						</View>
-						<View className='absolute top-0 gap-x-2 w-[386px] h-[104px] flex-row justify-center items-center'>
+						<View
+							style={{ width: Width / 1.1 }}
+							className='absolute top-0 gap-x-2 h-[107px] flex-row justify-center items-center'
+						>
 							<TouchableOpacity
 								onPress={() => {
 									setModalVisible(true)

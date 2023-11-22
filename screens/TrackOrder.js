@@ -246,10 +246,7 @@ const TrackOrder = ({ route }) => {
 											</Text>
 											<Text className='text-gray-500 text-sm font-bold'>
 												{order?.deliveryInfo?.name} ({" "}
-												{
-													order?.deliveryInfo
-														?.admission_no
-												}{" "}
+												{order?.deliveryInfo?.admission_no.toUpperCase()}{" "}
 												)
 											</Text>
 										</View>
@@ -258,7 +255,7 @@ const TrackOrder = ({ route }) => {
 												Delivery Address :
 											</Text>
 											<Text className='text-gray-500 text-sm font-bold'>
-												{order?.deliveryInfo?.room},
+												{order?.deliveryInfo?.room},{" "}
 												{order?.deliveryInfo?.hostel}
 											</Text>
 										</View>
@@ -313,10 +310,7 @@ const TrackOrder = ({ route }) => {
 										<View>
 											<Text className='text-gray-400 text-xs'>
 												(
-												{
-													order?.deliveryInfo
-														?.admission_no
-												}
+												{order?.deliveryInfo?.admission_no.toUpperCase()}
 												)
 											</Text>
 										</View>
@@ -362,7 +356,7 @@ const TrackOrder = ({ route }) => {
 								</View>
 								<View>
 									<Text className='font-bold text-xs text-gray-400'>
-										{order?.deliveryInfo?.room},
+										{order?.deliveryInfo?.room},{" "}
 										{order?.deliveryInfo?.hostel}
 									</Text>
 								</View>

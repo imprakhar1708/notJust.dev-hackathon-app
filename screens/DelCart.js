@@ -7,7 +7,7 @@ import {
 	Modal,
 	Pressable,
 } from "react-native"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import CartItem from "../components/CartItem"
 import { BanknotesIcon } from "react-native-heroicons/outline"
 import pay from "../assets/pay"
@@ -16,6 +16,8 @@ import { ArrowPathIcon, ArrowRightIcon } from "react-native-heroicons/solid"
 import Confetti from "../components/Confetti"
 import { firebase } from "@react-native-firebase/auth"
 import firestore from "@react-native-firebase/firestore"
+import Checkbox from "expo-checkbox"
+import Toast from "react-native-root-toast"
 
 const DelCart = ({ route, navigation }) => {
 	const user = firebase.auth().currentUser
@@ -25,6 +27,10 @@ const DelCart = ({ route, navigation }) => {
 		route?.params?.data?.order_data
 	const [status, setstatus] = useState(false)
 	const [isDisabled, setisDisabled] = useState(false)
+	const [cpDiscount, setcpDiscount] = useState(0)
+	const [isChecked, setChecked] = useState(false)
+	const [cpData, setcpData] = useState(0)
+	const [amount, setamount] = useState(total)
 	const [modalVisible, setModalVisible] = useState(false)
 	const fnErrorMiddle = () => {
 		setstatus(false)
@@ -50,6 +56,16 @@ const DelCart = ({ route, navigation }) => {
 		})
 		setModalVisible(false)
 	}
+
+	useEffect(() => {
+		cpRef.onSnapshot((doc) => {
+			if (doc?.exists) {
+				setcpData(doc?.data()?.cashPoints)
+			} else {
+				setcpData(0)
+			}
+		})
+	}, [])
 	const orderDocRef = firestore().collection("OrderDetails").doc(user.uid)
 	const cpRef = firestore().collection("CashPointDetails").doc(user.uid)
 	const acceptedContractRef = firestore()
@@ -123,23 +139,69 @@ const DelCart = ({ route, navigation }) => {
 		})
 		cpRef.get().then((doc) => {
 			if (doc?.exists) {
-				cpRef.update({
-					cashPoints:
-						parseInt(doc?.data()?.cashPoints) +
-						parseInt((0.01 * total).toFixed(0)),
-					history: firestore.FieldValue.arrayUnion({
-						action: "add",
-						date: new Date().toISOString(),
-						amount: parseInt((0.01 * total).toFixed(0)),
-						title: "Cashpoints Added",
-						id: orderId,
-						type: "Order",
-					}),
-				})
+				cpRef
+					.update({
+						cashPoints:
+							parseInt(doc?.data()?.cashPoints) +
+							parseInt((0.01 * total).toFixed(0)),
+						history: firestore.FieldValue.arrayUnion({
+							action: "add",
+							date: new Date().toISOString(),
+							amount: parseInt((0.01 * total).toFixed(0)),
+							title: "Cashpoints Added",
+							id: orderId,
+							type: "Order",
+						}),
+					})
+					.then(() => {
+						{
+							isChecked &&
+								cpRef.update({
+									cashPoints:
+										parseInt(doc?.data()?.cashPoints) -
+										parseInt(cpDiscount),
+									history: firestore.FieldValue.arrayUnion({
+										action: "remove",
+										date: new Date().toISOString(),
+										amount: parseInt(cpDiscount),
+										title: "Cashpoints Redeemed",
+										id: orderId,
+										type: "Order",
+									}),
+								})
+						}
+					})
 			}
 		})
 		deleteFromAcceptedContract()
 	}
+
+	const showToast = (mess) => {
+		Toast.show(mess, {
+			position: 100,
+			backgroundColor: "black",
+			textColor: "white",
+			opacity: 1,
+			duration: 1000,
+		})
+	}
+
+	useEffect(() => {
+		setcpDiscount(
+			itemTotal < 50 || !isChecked
+				? 0
+				: Math.min(cpData, Math.floor(0.8 * itemTotal))
+		)
+	}, [itemTotal, isChecked, cpData])
+
+	useEffect(() => {
+		const totalAmount = total
+		setamount(
+			itemTotal >= 50 && isChecked
+				? totalAmount - cpDiscount
+				: totalAmount
+		)
+	}, [itemTotal, isChecked, cpDiscount, cpData])
 
 	return (
 		<View className='flex-1 bg-gray-100 relative pb-80'>
@@ -147,6 +209,7 @@ const DelCart = ({ route, navigation }) => {
 				contentContainerStyle={{
 					paddingHorizontal: 15,
 					paddingTop: 15,
+					paddingBottom: 50,
 				}}
 			>
 				{cartDisplayData?.map((item) => (
@@ -192,10 +255,57 @@ const DelCart = ({ route, navigation }) => {
 								<BanknotesIcon size={18} color='green' />
 							</View>
 						</View>
+						<TouchableOpacity
+							onPress={() => {
+								cpData > 50
+									? setChecked((prev) => !prev)
+									: showToast(
+											"⚠️Atleast 50 Cashpoints Needed to Redeem !"
+									  )
+							}}
+							className='flex-row px-5 items-center justify-between'
+						>
+							<View className='flex-row items-center'>
+								<Checkbox
+									value={isChecked}
+									disabled={isDisabled}
+									onValueChange={setChecked}
+									color='rgb(251 146 60)'
+								/>
+								<View className='p-2'>
+									<View className='flex-row items-center'>
+										<Text className='text-gray-500'>
+											Reedem CashPoints
+										</Text>
+										<Text className='text-[10px] text-gray-500'>
+											{" "}
+											(Upto 80% Discount)
+										</Text>
+									</View>
+
+									<View className='flex-row items-center'>
+										<Text className='text-xs text-gray-400'>
+											Balance : {cpData}
+										</Text>
+										<BanknotesIcon
+											size={12}
+											color='green'
+										/>
+									</View>
+								</View>
+							</View>
+							{isChecked && (
+								<Text className='text-gray-500 text-lg font-bold'>
+									- ₹{cpDiscount}
+								</Text>
+							)}
+						</TouchableOpacity>
 					</View>
 					<View className='flex-row p-5 justify-between'>
 						<Text className='text-xl font-bold'>Total :</Text>
-						<Text className='text-xl font-extrabold'>₹{total}</Text>
+						<Text className='text-xl font-extrabold'>
+							₹{amount}
+						</Text>
 					</View>
 				</View>
 				<TouchableOpacity
@@ -213,7 +323,7 @@ const DelCart = ({ route, navigation }) => {
 					onPress={(e) => {
 						pay(
 							setisDisabled,
-							total * 100,
+							amount * 100,
 							fnErrorMiddle,
 							fnSuccess,
 							fnError

@@ -6,6 +6,7 @@ import {
 	ActivityIndicator,
 	Platform,
 	Linking,
+	useWindowDimensions,
 } from "react-native"
 import React, { useEffect, useState } from "react"
 import { BanknotesIcon, MapPinIcon } from "react-native-heroicons/outline"
@@ -68,36 +69,42 @@ const SingleDelHistory = ({ data }) => {
 		Linking.openURL(phoneNumber)
 	}
 	const [open, setopen] = useState(false)
+	const { width } = useWindowDimensions()
 	return (
 		<>
-			<View className=' p-2 mb-3 rounded-xl border-[.8px] border-gray-300'>
-				<View className='flex-row pb-2 justify-between'>
-					<View className='flex-row px-2 items-center'>
+			<View className='p-2 mb-3 rounded-xl border-[.8px] border-gray-300'>
+				<View
+					style={{
+						width: width / 1.15,
+					}}
+					className='flex-row pb-2 justify-between'
+				>
+					<View className='flex-row items-center'>
 						<View>
 							<Image
 								source={{ uri: data?.owner_info?.photoUrl }}
-								className='w-12 h-12 rounded-full'
+								className='w-8 h-8 rounded-full'
 							/>
 						</View>
 
 						<View className='px-1'>
-							<Text className='font-black text-xl text-gray-600'>
-								{data?.owner_info.name}
+							<Text className='font-black text-[17px] w-40 text-gray-600'>
+								{data?.owner_info?.name}
 							</Text>
 							<View className='flex-row'>
 								<View className='flex-row items-center'>
 									<MapPinIcon size={15} color='orange' />
 									<View>
-										<Text className='text-xs font-bold text-gray-400'>
-											{data?.owner_info.hostel} &#11825;{" "}
+										<Text className='text-xs text-gray-400'>
+											{data?.owner_info?.hostel} &#11825;{" "}
 										</Text>
 									</View>
 								</View>
 								<View className='flex-row items-center'>
 									<BanknotesIcon size={15} color='green' />
-									<Text className='text-xs font-bold text-gray-400'>
+									<Text className='text-xs text-gray-400'>
 										{" "}
-										{data?.order_data.cp}
+										{data?.order_data?.cp}
 									</Text>
 								</View>
 							</View>
@@ -122,11 +129,11 @@ const SingleDelHistory = ({ data }) => {
 							</Text>
 						</View>
 						<Text className='text-lg text-end font-bold text-gray-600'>
-							₹{data?.order_data.total}
+							₹{data?.order_data?.total}
 						</Text>
 					</View>
 				</View>
-				<View className='px-3 py-1 bg-gray-200 border-[.5px] border-gray-300 rounded-xl'>
+				<View className='px-1 py-1 bg-gray-200 border-[.5px] border-gray-300 rounded-xl'>
 					<View
 						className={`flex-row w-full justify-between items-center`}
 					>
@@ -135,6 +142,8 @@ const SingleDelHistory = ({ data }) => {
 							<Text className='text-xs text-gray-500 font-bold'>
 								{data?.status === "Waiting"
 									? "Remind them to Pay for the Order !"
+									: data?.status === "Delivered"
+									? "CashPoints Credited to your Account !"
 									: `Token No. ${data?.token}`}
 							</Text>
 						</View>
@@ -185,7 +194,7 @@ const SingleDelHistory = ({ data }) => {
 					</TouchableOpacity>
 					{open && (
 						<View className='px-3 py-1'>
-							{data?.order_data.order.map((item) => (
+							{data?.order_data?.order.map((item) => (
 								<SingleItem key={item?.food?.id} data={item} />
 							))}
 						</View>

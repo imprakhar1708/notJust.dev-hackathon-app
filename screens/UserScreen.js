@@ -20,6 +20,7 @@ import {
 	HeartIcon as FavS,
 	PlusCircleIcon,
 	MinusCircleIcon,
+	GiftIcon,
 } from "react-native-heroicons/solid"
 import firestore from "@react-native-firebase/firestore"
 import SingleOrder from "../components/SingleOrder"
@@ -139,7 +140,7 @@ const UserScreen = ({ navigation }) => {
 					</View>
 				)}
 				{!isLoadingcp && (
-					<View className='pl-5 pr-2 py-2 border-[0.8px] border-orange-300 bg-gray-200 rounded-2xl flex-row justify-between'>
+					<View className='pl-5 pr-2 py-2 border-[0.8px] border-gray-300 bg-gray-200 rounded-2xl flex-row justify-between'>
 						<View>
 							<View className='flex-row items-center gap-x-1'>
 								<Text className='text-2xl font-black '>
@@ -154,11 +155,6 @@ const UserScreen = ({ navigation }) => {
 							</View>
 						</View>
 						<View className='flex-row'>
-							<View className='mr-1 bg-orange-400 items-center py-2 px-7 rounded-xl justify-center'>
-								<Text className='text-white font-black'>
-									Claim
-								</Text>
-							</View>
 							<CashPointsBttn />
 						</View>
 					</View>

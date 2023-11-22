@@ -51,38 +51,40 @@ const LoginnSignup = ({ navigation }) => {
 	async function onAuthStateChanged(user) {
 		setUser(user)
 		if (user) {
-			// if (regex.test(user.email)) {
-			const userRef = firestore().collection("UserDetails").doc(user.uid)
-			const cashPointsRef = firestore()
-				.collection("CashPointDetails")
-				.doc(user.uid)
-			const doc = await userRef.get()
-			const cpDoc = await cashPointsRef.get()
-			if (!cpDoc?.exists) {
-				await cashPointsRef.set({
-					cashPoints: 0,
-					history: [],
-				})
-			}
-			if (!doc?.exists) {
-				await userRef
-					.set({
-						uid: user.uid,
-						displayName: user.displayName,
-						email: user.email,
+			if (regex.test(user.email)) {
+				const userRef = firestore()
+					.collection("UserDetails")
+					.doc(user.uid)
+				const cashPointsRef = firestore()
+					.collection("CashPointDetails")
+					.doc(user.uid)
+				const doc = await userRef.get()
+				const cpDoc = await cashPointsRef.get()
+				if (!cpDoc?.exists) {
+					await cashPointsRef.set({
+						cashPoints: 0,
+						history: [],
 					})
-					.then(() => {
-						navigation.navigate("Main")
-					})
+				}
+				if (!doc?.exists) {
+					await userRef
+						.set({
+							uid: user.uid,
+							displayName: user.displayName,
+							email: user.email,
+						})
+						.then(() => {
+							navigation.navigate("Main")
+						})
+				} else {
+					navigation.navigate("Main")
+				}
 			} else {
-				navigation.navigate("Main")
+				await auth().currentUser.delete()
+				await GoogleSignin.revokeAccess()
+				setModalVisible(true)
+				setUser(null)
 			}
-			// } else {
-			// 	await auth().currentUser.delete()
-			// 	await GoogleSignin.revokeAccess()
-			// 	setModalVisible(true)
-			// 	setUser(null)
-			// }
 		}
 		setdisabled(false)
 	}

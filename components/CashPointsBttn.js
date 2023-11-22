@@ -8,6 +8,8 @@ import {
 } from "react-native-google-mobile-ads"
 import firestore from "@react-native-firebase/firestore"
 import { firebase as firebaseAuth } from "@react-native-firebase/auth"
+import { GiftIcon } from "react-native-heroicons/solid"
+import Toast from "react-native-root-toast"
 
 const adUnitId = TestIds.REWARDED
 
@@ -54,21 +56,29 @@ const CashPointsBttn = () => {
 		}
 	}, [])
 
-	if (!loaded) {
-		rewarded.load()
-		return null
+	const loadedOnPress = () => {
+		rewarded.show()
+		setLoaded(false)
 	}
-
+	const notLoadedOnPress = () => {
+		rewarded.load()
+		Toast.show("🎁Reward Not Ready....Come Back Later !", {
+			position: 100,
+			backgroundColor: "black",
+			textColor: "white",
+			opacity: 1,
+			duration: 1000,
+		})
+	}
 	return (
 		<TouchableOpacity
 			onPress={() => {
-				rewarded.show()
-				setLoaded(false)
+				loaded ? loadedOnPress() : notLoadedOnPress()
 			}}
-			className=' justify-center'
+			className=' justify-center '
 		>
-			<View className=' justify-center bg-orange-400 p-3 rounded-xl'>
-				<PlusIcon size={20} color='white' />
+			<View className=' justify-center bg-orange-400 px-7 py-3 rounded-xl'>
+				<GiftIcon size={20} color='white' />
 			</View>
 		</TouchableOpacity>
 	)

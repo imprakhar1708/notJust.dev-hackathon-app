@@ -54,10 +54,10 @@ const SingleOrder = ({ data, navigation }) => {
 			onPress={() => {
 				navigation.navigate("TrackOrder", { id: data.id })
 			}}
-			className='mb-3 rounded-3xl border-[.8px] border-gray-300'
+			className='mb-3 rounded-2xl border-[.8px] border-gray-300'
 		>
 			<View className='p-3'>
-				<View className='flex-row p-2 justify-between border-b-[.8px] border-dashed border-gray-100'>
+				<View className='flex-row pb-2 justify-between border-b-[.8px] border-dashed border-gray-100'>
 					<View className='flex-row gap-2'>
 						<Image
 							source={{ uri: data?.items[0].food.foodImageUrl }}
@@ -65,7 +65,7 @@ const SingleOrder = ({ data, navigation }) => {
 						/>
 						<View>
 							<Text className='text-lg'>
-								{moment(data?.time).format("DD MMM YY")}
+								{moment(data?.time).format("DD MMM 'YY")}
 							</Text>
 							<Text className='text-gray-700'>
 								{moment(data?.time).format("h:mm a")}
@@ -84,7 +84,7 @@ const SingleOrder = ({ data, navigation }) => {
 						</Text>
 					</View>
 				</View>
-				<View className='flex-row items-center p-2 justify-between border-t-[.8px] border-dashed border-gray-300'>
+				<View className='flex-row items-center px-1 pt-2 justify-between border-t-[.8px] border-dashed border-gray-300'>
 					<View>
 						{data?.token && (
 							<Text className='text-xs text-gray-400'>

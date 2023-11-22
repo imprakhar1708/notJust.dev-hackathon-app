@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from "react-native"
+import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native"
 import React, { useCallback, useState } from "react"
 import { ClockIcon } from "react-native-heroicons/outline"
 import {
@@ -192,7 +192,7 @@ const FoodCard = ({ uri, title, price, time, navigation, available, item }) => {
 					uri: uri,
 				}}
 				style={available ? "" : { tintColor: "grey" }}
-				width={175}
+				width={Dimensions.get("window").width / 2.3}
 				height={160}
 			/>
 			{!available && (
@@ -204,8 +204,8 @@ const FoodCard = ({ uri, title, price, time, navigation, available, item }) => {
 						opacity: 0.3,
 						position: "absolute",
 					}}
-					width={180}
-					height={200}
+					width={Dimensions.get("window").width / 2.3}
+					height={160}
 				/>
 			)}
 			<View className='pl-3 pr-2 py-2 flex-row bg-orange-50 items-start justify-between'>

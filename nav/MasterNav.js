@@ -41,6 +41,7 @@ const MasterNav = () => {
 				/>
 				<Stack.Screen
 					options={{
+						gestureEnabled: false,
 						header: ({ route, navigation }) => (
 							<Header
 								title='Checkout'

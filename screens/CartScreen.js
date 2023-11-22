@@ -22,13 +22,17 @@ import {
 	BanknotesIcon,
 	InformationCircleIcon,
 } from "react-native-heroicons/outline"
+import Checkbox from "expo-checkbox"
 
 const CartScreen = ({ navigation }) => {
 	const [isDisabled, setisDisabled] = useState(false)
 	const [modalVisible, setModalVisible] = useState(false)
 	const [status, setstatus] = useState(false)
 	const [isLoading, setisLoading] = useState(true)
+	const [isChecked, setChecked] = useState(false)
 	const [cartData, setcartData] = useState(null)
+	const [cpData, setcpData] = useState(0)
+	const [cpDiscount, setcpDiscount] = useState(0)
 	const [cartDisplayData, setcartDisplayData] = useState(null)
 	const [buyOption, setbuyOption] = useState("ta")
 	const [amount, setamount] = useState(0)
@@ -87,19 +91,44 @@ const CartScreen = ({ navigation }) => {
 		total >= 100
 			? cpRef.get().then((doc) => {
 					if (doc?.exists) {
-						cpRef.update({
-							cashPoints:
-								parseInt(doc?.data()?.cashPoints) +
-								parseInt((0.01 * total).toFixed(0)),
-							history: firestore.FieldValue.arrayUnion({
-								action: "add",
-								date: new Date().toISOString(),
-								amount: parseInt((0.01 * total).toFixed(0)),
-								title: "Cashpoints Added",
-								id: orderId,
-								type: "Order",
-							}),
-						})
+						cpRef
+							.update({
+								cashPoints:
+									parseInt(doc?.data()?.cashPoints) +
+									parseInt((0.01 * total).toFixed(0)),
+								history: firestore.FieldValue.arrayUnion({
+									action: "add",
+									date: new Date().toISOString(),
+									amount: parseInt((0.01 * total).toFixed(0)),
+									title: "Cashpoints Added",
+									id: orderId,
+									type: "Order",
+								}),
+							})
+							.then(() => {
+								{
+									isChecked &&
+										cpRef.update({
+											cashPoints:
+												parseInt(
+													doc?.data()?.cashPoints
+												) - parseInt(cpDiscount),
+											history:
+												firestore.FieldValue.arrayUnion(
+													{
+														action: "remove",
+														date: new Date().toISOString(),
+														amount: parseInt(
+															cpDiscount
+														),
+														title: "Cashpoints Redeemed",
+														id: orderId,
+														type: "Order",
+													}
+												),
+										})
+								}
+							})
 					}
 			  })
 			: null
@@ -124,15 +153,38 @@ const CartScreen = ({ navigation }) => {
 			}
 			setisLoading(false)
 		})
+		cpRef.onSnapshot((doc) => {
+			if (doc?.exists) {
+				setcpData(doc?.data()?.cashPoints)
+			} else {
+				setcpData(0)
+			}
+		})
 	}, [])
 
 	useEffect(() => {
-		setamount(
+		buyOption === "del" ? setChecked(false) : null
+	}, [buyOption])
+
+	useEffect(() => {
+		setcpDiscount(
+			total < 50 || !isChecked
+				? 0
+				: Math.min(cpData, Math.floor(0.8 * total))
+		)
+	}, [total, isChecked, cpData, buyOption])
+
+	useEffect(() => {
+		const totalAmount =
 			buyOption === "del"
 				? parseInt((total * 1.2).toFixed(2) * 100)
 				: parseInt((total * 1.05).toFixed(2) * 100)
+		setamount(
+			total >= 50 && isChecked
+				? totalAmount - cpDiscount * 100
+				: totalAmount
 		)
-	}, [buyOption, total])
+	}, [buyOption, isChecked, cpDiscount, cpData, total])
 
 	useEffect(() => {
 		total <= 100 && buyOption === "del" ? setbuyOption("ta") : null
@@ -145,8 +197,8 @@ const CartScreen = ({ navigation }) => {
 		setcartDisplayData(sortCart)
 	}, [cartData])
 
-	const errorToast = () => {
-		Toast.show(`⚠️ Delivery only for Orders above ₹100`, {
+	const errorToast = (mess) => {
+		Toast.show(mess, {
 			position: 100,
 			backgroundColor: "black",
 			textColor: "white",
@@ -195,7 +247,7 @@ const CartScreen = ({ navigation }) => {
 					contentContainerStyle={{
 						paddingHorizontal: 15,
 						paddingTop: 15,
-						paddingBottom: 85,
+						paddingBottom: 100,
 					}}
 				>
 					{cartDisplayData?.map((item) => (
@@ -218,7 +270,9 @@ const CartScreen = ({ navigation }) => {
 								onPress={() => {
 									total >= 100
 										? setbuyOption("del")
-										: errorToast()
+										: errorToast(
+												`⚠️ Delivery only for Orders above ₹100`
+										  )
 								}}
 								className={`flex-1 p-2 border-r-[0.5px] ${
 									buyOption === "del" ? "bg-orange-300" : ""
@@ -296,7 +350,7 @@ const CartScreen = ({ navigation }) => {
 												color='white'
 											/>
 											<Text className='text-white text-xs font-bold'>
-												Order Above ₹50 to earn
+												Order Above ₹50 to earn & redeem
 												CashPoints
 											</Text>
 											<BanknotesIcon
@@ -306,15 +360,78 @@ const CartScreen = ({ navigation }) => {
 										</View>
 									</View>
 								)}
+								{total >= 50 && buyOption === "del" && (
+									<View className='flex-row px-4 py-1 items-center'>
+										<View className='flex-row bg-gray-700 gap-x-1 py-1 pl-1 pr-2 rounded-full justify-center items-center'>
+											<InformationCircleIcon
+												size={15}
+												color='white'
+											/>
+											<Text className='text-white text-[11px] font-bold'>
+												You can Redeem CashPoint at the
+												time of Payment
+											</Text>
+											<BanknotesIcon
+												size={15}
+												color='white'
+											/>
+										</View>
+									</View>
+								)}
+								{total >= 50 && buyOption != "del" && (
+									<TouchableOpacity
+										onPress={() => {
+											cpData > 50
+												? setChecked((prev) => !prev)
+												: errorToast(
+														"⚠️Atleast 50 Cashpoints Needed to Redeem !"
+												  )
+										}}
+										className='flex-row px-5 items-center justify-between'
+									>
+										<View className='flex-row items-center'>
+											<Checkbox
+												value={isChecked}
+												disabled={cpData < 50}
+												onValueChange={setChecked}
+												color='rgb(251 146 60)'
+											/>
+											<View className='p-2'>
+												<View className='flex-row items-center'>
+													<Text className='text-gray-500'>
+														Reedem CashPoints
+													</Text>
+													<Text className='text-[10px] text-gray-500'>
+														{" "}
+														(Upto 80% Discount)
+													</Text>
+												</View>
+
+												<View className='flex-row items-center'>
+													<Text className='text-xs text-gray-400'>
+														Balance : {cpData}
+													</Text>
+													<BanknotesIcon
+														size={12}
+														color='green'
+													/>
+												</View>
+											</View>
+										</View>
+										{isChecked && (
+											<Text className='text-gray-500 text-lg font-bold'>
+												- ₹{cpDiscount}
+											</Text>
+										)}
+									</TouchableOpacity>
+								)}
 							</View>
-							<View className='flex-row p-5 justify-between'>
+							<View className='flex-row pt-3 px-5 justify-between'>
 								<Text className='text-xl font-bold'>
 									Total :
 								</Text>
 								<Text className='text-xl font-extrabold'>
-									{buyOption === "del"
-										? `₹${(1.2 * total).toFixed(2)}`
-										: `₹${(1.05 * total).toFixed(2)}`}
+									₹{amount / 100}
 								</Text>
 							</View>
 						</View>
@@ -446,6 +563,12 @@ const CartScreen = ({ navigation }) => {
 					</Modal>
 				</>
 			)}
+			<View className='left-0 bottom-0 absolute'>
+				<Confetti active={isChecked} />
+			</View>
+			<View className='right-0 bottom-0 absolute'>
+				<Confetti active={isChecked} />
+			</View>
 		</View>
 	)
 }
