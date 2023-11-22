@@ -8,6 +8,19 @@
   </p>
 </p>
 
+# notJust.Hack Project
+Hard Work Pays Off !😮‍💨
+
+## Day-1
+![IMG_20231123_030502](https://github.com/imprakhar1708/notJust.dev-hackathon-app/assets/114819970/e6728137-1aa1-444a-9a2b-19ecb2104b5c)
+
+## Day-2
+![IMG_20231123_030451](https://github.com/imprakhar1708/notJust.dev-hackathon-app/assets/114819970/6d96a7a8-9025-45b4-9ee1-be3af216db7d)
+
+## Day-3
+![IMG_20231123_030425](https://github.com/imprakhar1708/notJust.dev-hackathon-app/assets/114819970/625158a1-5520-4e79-a803-b65aaaa8e9b8)
+
+*Screenshots are of Digital Wellbeing, which provides daily screen time for every app.
 
 # Overview
 
