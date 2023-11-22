@@ -28,7 +28,6 @@ import moment from "moment"
 import { useFocusEffect } from "@react-navigation/native"
 import CashPointsBttn from "../components/CashPointsBttn"
 import SingleCashpoints from "../components/SingleCashpoints"
-import { LinearGradient } from "expo-linear-gradient"
 const UserScreen = ({ navigation }) => {
 	const [active, setactive] = useState("order")
 	const [orderData, setorderData] = useState(null)
@@ -140,7 +139,7 @@ const UserScreen = ({ navigation }) => {
 					</View>
 				)}
 				{!isLoadingcp && (
-					<View className='pl-5 pr-2 py-2 border-[0.8px] border-gray-300 bg-gray-200 rounded-2xl flex-row justify-between'>
+					<View className='pl-5 pr-2 py-2 border-[0.8px] border-orange-300 bg-gray-200 rounded-2xl flex-row justify-between'>
 						<View>
 							<View className='flex-row items-center gap-x-1'>
 								<Text className='text-2xl font-black '>
@@ -155,16 +154,11 @@ const UserScreen = ({ navigation }) => {
 							</View>
 						</View>
 						<View className='flex-row'>
-							<LinearGradient
-								colors={["#7F8C8D", "#000000"]}
-								start={{ x: 0, y: 0.5 }}
-								end={{ x: 1, y: 0.5 }}
-								className='mr-1 border-[0.5px] border-gray-500 items-center py-2 px-7 rounded-xl justify-center'
-							>
+							<View className='mr-1 bg-orange-400 items-center py-2 px-7 rounded-xl justify-center'>
 								<Text className='text-white font-black'>
 									Claim
 								</Text>
-							</LinearGradient>
+							</View>
 							<CashPointsBttn />
 						</View>
 					</View>

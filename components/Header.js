@@ -8,8 +8,9 @@ import {
 } from "react-native-heroicons/outline"
 import auth from "@react-native-firebase/auth"
 import Toast from "react-native-root-toast"
+import { GoogleSignin } from "@react-native-google-signin/google-signin"
 
-const Header = ({ navigation, title, share, logout }) => {
+const Header = ({ navigation, title, share, logout, back }) => {
 	const signOut = () => {
 		auth()
 			.signOut()
@@ -31,13 +32,15 @@ const Header = ({ navigation, title, share, logout }) => {
 	}
 	return (
 		<SafeAreaView className={`flex-row items-center px-5 pt-3`}>
-			<TouchableOpacity
-				onPress={() => {
-					navigation.goBack()
-				}}
-			>
-				<ArrowLeftIcon size={27} color='orange' />
-			</TouchableOpacity>
+			{back && (
+				<TouchableOpacity
+					onPress={() => {
+						navigation.goBack()
+					}}
+				>
+					<ArrowLeftIcon size={27} color='orange' />
+				</TouchableOpacity>
+			)}
 			<Text className='flex-1 text-lg font-bold text-center'>
 				{title}
 			</Text>
@@ -63,14 +66,18 @@ const Header = ({ navigation, title, share, logout }) => {
 						shadowRadius: 5.62,
 						elevation: 7,
 					}}
-					className='flex-row p-2 items-center bg-gray-800 rounded-xl'
-					onPress={() => {
+					className='flex-row p-2 items-center bg-orange-400 rounded-xl'
+					onPress={async () => {
 						signOut()
+						await GoogleSignin.revokeAccess()
 					}}
 				>
 					<ArrowLeftOnRectangleIcon size={15} color='white' />
 					<View>
-						<Text className='text-xs text-gray-200'> LogOut</Text>
+						<Text className='text-xs font-bold text-gray-200'>
+							{" "}
+							LogOut
+						</Text>
 					</View>
 				</TouchableOpacity>
 			)}

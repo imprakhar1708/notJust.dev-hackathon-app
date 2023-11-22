@@ -8,6 +8,7 @@ import {
 	Pressable,
 	ActivityIndicator,
 } from "react-native"
+import pay from "../assets/pay"
 import React, { useEffect, useState } from "react"
 import { firebase } from "../Firebase/firebaseConfig"
 import firestore from "@react-native-firebase/firestore"
@@ -15,7 +16,6 @@ import { firebase as firebaseAuth } from "@react-native-firebase/auth"
 import CartItem from "../components/CartItem"
 import OrderModal from "../components/OrderModal"
 import Confetti from "../components/Confetti"
-import RazorpayCheckout from "react-native-razorpay"
 import { ArrowPathIcon, ArrowRightIcon } from "react-native-heroicons/solid"
 import Toast from "react-native-root-toast"
 import {
@@ -31,6 +31,7 @@ const CartScreen = ({ navigation }) => {
 	const [cartData, setcartData] = useState(null)
 	const [cartDisplayData, setcartDisplayData] = useState(null)
 	const [buyOption, setbuyOption] = useState("ta")
+	const [amount, setamount] = useState(0)
 	const [total, settotal] = useState(0)
 	const user = firebaseAuth.auth().currentUser
 	const cartDocRef = firestore().collection("CartDetails").doc(user.uid)
@@ -48,8 +49,8 @@ const CartScreen = ({ navigation }) => {
 						itemTotal: total,
 						total:
 							buyOption === "del"
-								? (total * 1.17).toFixed(2)
-								: (total * 1.1).toFixed(2),
+								? (total * 1.2).toFixed(2)
+								: (total * 1.05).toFixed(2),
 						orderDate: new Date().toDateString(),
 						orderTime: new Date().toLocaleTimeString(),
 						time: new Date().toISOString(),
@@ -68,8 +69,8 @@ const CartScreen = ({ navigation }) => {
 							displayName: user.displayName,
 							total:
 								buyOption === "del"
-									? (total * 1.17).toFixed(2)
-									: (total * 1.1).toFixed(2),
+									? (total * 1.2).toFixed(2)
+									: (total * 1.05).toFixed(2),
 							email: user.email,
 							orderDate: new Date().toDateString(),
 							orderTime: new Date().toLocaleTimeString(),
@@ -109,52 +110,6 @@ const CartScreen = ({ navigation }) => {
 		setModalVisible(false)
 	}
 
-	const pay = async (e) => {
-		setisDisabled(true)
-		let id = null
-		await fetch("https://canteen-app-backend.onrender.com/payment", {
-			method: "POST",
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				amount: total * 100,
-			}),
-		})
-			.then((res) => res.json())
-			.then((data) => (id = data.id))
-			.catch((e) => {
-				setstatus(false)
-				setModalVisible(true)
-				return
-			})
-		var options = {
-			description: "Pay For Order",
-			currency: "INR",
-			key: "rzp_test_GXwGCmJSauvS0K",
-			amount:
-				buyOption === "del"
-					? parseInt((total * 1.17).toFixed(2) * 100)
-					: parseInt((total * 1.1).toFixed(2) * 100),
-			name: "SVNIT Canteen",
-			order_id: id,
-		}
-		RazorpayCheckout.open(options)
-			.then((data) => {
-				createOrder()
-				cartDocRef.delete()
-				setModalVisible(true)
-				setstatus(true)
-				setisDisabled(false)
-			})
-			.catch((error) => {
-				setstatus(false)
-				setModalVisible(true)
-				setisDisabled(false)
-			})
-	}
-
 	useEffect(() => {
 		const cart = cartDocRef.onSnapshot((doc) => {
 			if (doc?.exists && doc?.data()?.cartItems.length > 0) {
@@ -170,6 +125,14 @@ const CartScreen = ({ navigation }) => {
 			setisLoading(false)
 		})
 	}, [])
+
+	useEffect(() => {
+		setamount(
+			buyOption === "del"
+				? parseInt((total * 1.2).toFixed(2) * 100)
+				: parseInt((total * 1.05).toFixed(2) * 100)
+		)
+	}, [buyOption, total])
 
 	useEffect(() => {
 		total <= 100 && buyOption === "del" ? setbuyOption("ta") : null
@@ -192,9 +155,31 @@ const CartScreen = ({ navigation }) => {
 		})
 	}
 
+	const fnErrorMiddle = () => {
+		setstatus(false)
+		setModalVisible(true)
+	}
+
+	const fnError = () => {
+		setstatus(false)
+		setModalVisible(true)
+		setisDisabled(false)
+	}
+
+	const fnSuccess = () => {
+		createOrder()
+		cartDocRef.delete()
+		setModalVisible(true)
+		setstatus(true)
+		setisDisabled(false)
+	}
+
 	const paramsCartData = {
-		total: (total * 1.17).toFixed(2),
-		cp: (0.07 * total).toFixed(0),
+		itemTotal: total,
+		total: (total * 1.2).toFixed(2),
+		cp: (0.15 * total).toFixed(0),
+		convenience: (0.05 * total).toFixed(2),
+		cpEarned: (0.01 * total).toFixed(0),
 		order: cartData,
 	}
 
@@ -274,7 +259,7 @@ const CartScreen = ({ navigation }) => {
 										Convenience Fee :
 									</Text>
 									<Text className='text-gray-500 font-bold'>
-										₹{(0.1 * total).toFixed(2)}
+										₹{(0.05 * total).toFixed(2)}
 									</Text>
 								</View>
 								{total >= 100 && buyOption === "del" && (
@@ -283,7 +268,7 @@ const CartScreen = ({ navigation }) => {
 											Delivery Fee :
 										</Text>
 										<Text className='text-gray-500 font-bold'>
-											₹{(0.07 * total).toFixed(0)}
+											₹{(0.15 * total).toFixed(0)}
 										</Text>
 									</View>
 								)}
@@ -328,8 +313,8 @@ const CartScreen = ({ navigation }) => {
 								</Text>
 								<Text className='text-xl font-extrabold'>
 									{buyOption === "del"
-										? `₹${(1.1 * total).toFixed(2)}`
-										: `₹${(1.1 * total).toFixed(2)}`}
+										? `₹${(1.2 * total).toFixed(2)}`
+										: `₹${(1.05 * total).toFixed(2)}`}
 								</Text>
 							</View>
 						</View>
@@ -353,7 +338,13 @@ const CartScreen = ({ navigation }) => {
 										initial: false,
 										params: { cartData: paramsCartData },
 								  })
-								: pay(e)
+								: pay(
+										setisDisabled,
+										amount,
+										fnErrorMiddle,
+										fnSuccess,
+										fnError
+								  )
 						}}
 						className='py-5 my-5 justify-center items-center px-10 rounded-2xl bg-orange-400'
 					>

@@ -165,7 +165,7 @@ const TrackOrder = ({ route }) => {
 										Convenience Fee :
 									</Text>
 									<Text className='text-gray-500'>
-										₹{(0.1 * order?.itemTotal)?.toFixed(2)}
+										₹{(0.05 * order?.itemTotal)?.toFixed(2)}
 									</Text>
 								</View>
 								{order?.mode === "del" && (
@@ -175,8 +175,8 @@ const TrackOrder = ({ route }) => {
 										</Text>
 										<Text className='text-gray-500'>
 											₹
-											{(0.07 * order?.itemTotal)?.toFixed(
-												2
+											{(0.15 * order?.itemTotal)?.toFixed(
+												0
 											)}
 										</Text>
 									</View>
@@ -245,7 +245,12 @@ const TrackOrder = ({ route }) => {
 												Delivery Partner :
 											</Text>
 											<Text className='text-gray-500 text-sm font-bold'>
-												Prakhar Shrivastava ( U21EE014 )
+												{order?.deliveryInfo?.name} ({" "}
+												{
+													order?.deliveryInfo
+														?.admission_no
+												}{" "}
+												)
 											</Text>
 										</View>
 										<View className='px-1 pb-2 justify-between'>
@@ -253,7 +258,8 @@ const TrackOrder = ({ route }) => {
 												Delivery Address :
 											</Text>
 											<Text className='text-gray-500 text-sm font-bold'>
-												B515, Bhabha Bhawan
+												{order?.deliveryInfo?.room},
+												{order?.deliveryInfo?.hostel}
 											</Text>
 										</View>
 									</View>
@@ -282,7 +288,9 @@ const TrackOrder = ({ route }) => {
 							<View className='flex-row p-2 items-center'>
 								<View>
 									<Image
-										source={require("../assets/dp2.png")}
+										source={{
+											uri: order?.deliveryInfo?.photoUrl,
+										}}
 										className='w-12 h-12 rounded-full'
 									/>
 								</View>
@@ -293,7 +301,7 @@ const TrackOrder = ({ route }) => {
 											style={{ lineHeight: 18 }}
 											className='font-black w-44 text-gray-600 text-lg'
 										>
-											Prakhar Shrivastava
+											{order?.deliveryInfo?.name}
 										</Text>
 									</View>
 									<View className='flex-row justify-between'>
@@ -304,19 +312,14 @@ const TrackOrder = ({ route }) => {
 										</View>
 										<View>
 											<Text className='text-gray-400 text-xs'>
-												(U21EE014)
+												(
+												{
+													order?.deliveryInfo
+														?.admission_no
+												}
+												)
 											</Text>
 										</View>
-									</View>
-									<View className='flex-row gap-x-1'>
-										<View className='flex-row'>
-											<StarIcon size={15} color='gold' />
-											<StarIcon size={15} color='gold' />
-											<StarIcon size={15} color='gold' />
-										</View>
-										<Text className='font-bold text-gray-400 text-xs'>
-											(3.2)
-										</Text>
 									</View>
 								</View>
 							</View>
@@ -324,7 +327,7 @@ const TrackOrder = ({ route }) => {
 							<View className='flex-row p-2 gap-x-2 items-center'>
 								<TouchableOpacity
 									onPress={() => {
-										dialCall(7974935668)
+										dialCall(order?.deliveryInfo?.phn)
 									}}
 									className='bg-gray-700 p-2 rounded-full'
 								>
@@ -333,7 +336,7 @@ const TrackOrder = ({ route }) => {
 								<TouchableOpacity
 									onPress={() => {
 										Linking.openURL(
-											"whatsapp://send?phone=7974935668"
+											`whatsapp://send?phone=${order?.deliveryInfo?.phn}`
 										)
 									}}
 									className='bg-gray-700 p-2 rounded-full'
@@ -359,7 +362,8 @@ const TrackOrder = ({ route }) => {
 								</View>
 								<View>
 									<Text className='font-bold text-xs text-gray-400'>
-										B515, Bhabha Bhawan
+										{order?.deliveryInfo?.room},
+										{order?.deliveryInfo?.hostel}
 									</Text>
 								</View>
 							</View>
@@ -376,7 +380,7 @@ const TrackOrder = ({ route }) => {
 								</View>
 								<View>
 									<Text className='font-bold text-xs text-gray-400'>
-										5 min
+										15 min
 									</Text>
 								</View>
 							</View>

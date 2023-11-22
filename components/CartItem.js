@@ -5,7 +5,7 @@ import { firebase } from "../Firebase/firebaseConfig"
 import firestore from "@react-native-firebase/firestore"
 import { firebase as firebaseAuth } from "@react-native-firebase/auth"
 
-const CartItem = ({ qty, item, navigation, disabled }) => {
+const CartItem = ({ qty, item, navigation, disabled, del }) => {
 	const foodObj = {
 		foodImageUrl: item.foodImageUrl,
 		id: item.id,
@@ -64,7 +64,9 @@ const CartItem = ({ qty, item, navigation, disabled }) => {
 				<TouchableOpacity
 					disabled={disabled}
 					onPress={() => {
-						navigation.navigate("FoodDetails", { item })
+						del
+							? null
+							: navigation.navigate("FoodDetails", { item })
 					}}
 				>
 					<Image
@@ -86,27 +88,34 @@ const CartItem = ({ qty, item, navigation, disabled }) => {
 				</View>
 			</View>
 			<View className='self-center'>
-				<View className='flex-row gap-2 items-center'>
-					<TouchableOpacity
-						disabled={disabled}
-						onPress={() => {
-							qty > 0 ? addnRemoveFromCart(-1) : null
-						}}
-					>
-						<MinusCircleIcon size={30} color='rgb(55 65 81)' />
-					</TouchableOpacity>
-					<Text className='text-md text-gray-700 font-bold'>
-						{qty}
-					</Text>
-					<TouchableOpacity
-						disabled={disabled}
-						onPress={() => {
-							addnRemoveFromCart(1)
-						}}
-					>
-						<PlusCircleIcon size={30} color='rgb(55 65 81)' />
-					</TouchableOpacity>
-				</View>
+				{!del && (
+					<View className='flex-row gap-2 items-center'>
+						<TouchableOpacity
+							disabled={disabled}
+							onPress={() => {
+								qty > 0 ? addnRemoveFromCart(-1) : null
+							}}
+						>
+							<MinusCircleIcon size={30} color='rgb(55 65 81)' />
+						</TouchableOpacity>
+						<Text className='text-md text-gray-700 font-bold'>
+							{qty}
+						</Text>
+						<TouchableOpacity
+							disabled={disabled}
+							onPress={() => {
+								addnRemoveFromCart(1)
+							}}
+						>
+							<PlusCircleIcon size={30} color='rgb(55 65 81)' />
+						</TouchableOpacity>
+					</View>
+				)}
+				{del && (
+					<View>
+						<Text className='font-bold'>Qty : {qty}</Text>
+					</View>
+				)}
 			</View>
 		</View>
 	)

@@ -14,6 +14,7 @@ import {
 	ArrowLeftCircleIcon,
 	ChevronDownIcon,
 	ChevronUpIcon,
+	PencilSquareIcon,
 	PlusCircleIcon,
 } from "react-native-heroicons/solid"
 import { TouchableOpacity } from "react-native"
@@ -28,6 +29,7 @@ const DeliveryModal = ({ route, navigation }) => {
 	const [isChecked, setChecked] = useState(false)
 	const [isloading, setloading] = useState(false)
 	const [isTnC, setTnC] = useState(false)
+	const [isEditphn, setEditphn] = useState(false)
 	const [showForm, setshowForm] = useState(false)
 	const [modalVisible, setModalVisible] = useState(false)
 	const hostels = [
@@ -45,15 +47,26 @@ const DeliveryModal = ({ route, navigation }) => {
 	const [del, setdel] = useState(null)
 	const [name, setname] = useState(null)
 	const [phn, setphn] = useState(null)
+	const [editphn, seteditphn] = useState(null)
 	const [room, setroom] = useState(null)
+	const [adno, setadno] = useState(null)
 	const [hostel, sethostel] = useState(null)
 	const cartData = route?.params?.cartData
 	const delRef = firestore().collection("DeliveryDetails").doc(user.uid)
 	useEffect(() => {
+		let Name = user.displayName.replace(" SVNIT", "")
+		Name = (Name[0] + Name.slice(1).toLowerCase()).split(" ")
+		setname(
+			Name.map((word) => {
+				return word[0].toUpperCase() + word.substring(1)
+			}).join(" ")
+		)
+		setadno(user.email.split("@")[0])
 		delRef.onSnapshot((doc) => {
 			if (doc?.exists) {
 				setshowForm(false)
 				setTnC(true)
+				setphn(doc.data().phone_no)
 				setdel(doc.data().info)
 			} else {
 				setdel(null)
@@ -71,12 +84,18 @@ const DeliveryModal = ({ route, navigation }) => {
 			duration: 1000,
 		})
 	}
+	const validatephn = (no) => {
+		const regex = new RegExp(
+			"^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$"
+		)
+		return regex.test(no)
+	}
 	const info = () => {
 		if (!name || !phn || !room || !hostel) {
 			showToast("⚠️All Fields are Required to Proceed!")
 			return
 		}
-		if (phn.trim().length != 10) {
+		if (!validatephn(phn)) {
 			showToast("Enter Correct Phone No !")
 			return
 		}
@@ -95,8 +114,9 @@ const DeliveryModal = ({ route, navigation }) => {
 				await delRef
 					.update({
 						info: firestore.FieldValue.arrayUnion({
-							name: name.trim(),
-							phn: phn.trim(),
+							name,
+							admission_no: adno,
+							phn,
 							room: room.trim(),
 							hostel,
 							photoUrl: user.photoURL,
@@ -117,7 +137,8 @@ const DeliveryModal = ({ route, navigation }) => {
 					.set({
 						info: [
 							{
-								name: name.trim(),
+								name,
+								admission_no: adno,
 								phn: phn.trim(),
 								room: room.trim(),
 								hostel,
@@ -125,6 +146,9 @@ const DeliveryModal = ({ route, navigation }) => {
 								uid: user.uid,
 							},
 						],
+						phone_no: phn.trim(),
+						history: [],
+						orderIds: [],
 					})
 					.then(() => {
 						setloading(false)
@@ -138,10 +162,30 @@ const DeliveryModal = ({ route, navigation }) => {
 			}
 		})
 	}
+	const editPhnNo = () => {
+		if (!validatephn(editphn)) {
+			showToast("Enter Correct Phone No !")
+			return
+		}
+		delRef.get().then(async (doc) => {
+			if (doc?.exists) {
+				await delRef
+					.update({
+						phone_no: editphn,
+					})
+					.then(() => {
+						setEditphn(false)
+						setModalVisible(false)
+						showToast("Phone No. Edited !")
+					})
+			}
+		})
+	}
+
 	return (
 		<View className='flex-1 pt-3 px-5 pb-20'>
 			<ScrollView showsVerticalScrollIndicator={false}>
-				<View className='flex-row justify-between items-center'>
+				<View className='flex-row justify-between'>
 					<View>
 						<Text className='text-3xl font-bold'>
 							Delivery Details
@@ -156,21 +200,49 @@ const DeliveryModal = ({ route, navigation }) => {
 						)}
 					</View>
 					{!showForm && (
-						<TouchableOpacity
-							onPress={() => {
-								setshowForm(true)
-							}}
-							className='rounded-full border-[0.8px] border-orange-200
+						<View className='gap-y-1'>
+							{!isEditphn && (
+								<>
+									<TouchableOpacity
+										onPress={() => {
+											setshowForm(true)
+										}}
+										className='rounded-lg border-[0.8px] border-orange-200
 						items-center flex-row p-2 bg-orange-100'
-						>
-							<PlusCircleIcon size={20} color='orange' />
-							<Text className='font-bold'>Add Address</Text>
-						</TouchableOpacity>
+									>
+										<PlusCircleIcon
+											size={20}
+											color='orange'
+										/>
+										<Text className='font-bold'>
+											Add Address
+										</Text>
+									</TouchableOpacity>
+
+									<TouchableOpacity
+										onPress={() => {
+											setEditphn(true)
+										}}
+										className='rounded-lg border-[0.8px] border-orange-200
+						items-center flex-row p-2 bg-orange-100'
+									>
+										<PencilSquareIcon
+											size={20}
+											color='orange'
+										/>
+										<Text className='font-bold'>
+											Edit Phone No.
+										</Text>
+									</TouchableOpacity>
+								</>
+							)}
+						</View>
 					)}
-					{isTnC && showForm && (
+					{isTnC && (showForm || isEditphn) && (
 						<TouchableOpacity
 							onPress={() => {
 								setshowForm(false)
+								setEditphn(false)
 							}}
 							className='rounded-full border-[0.8px] border-gray-200
 						items-center flex-row p-2 bg-gray-200'
@@ -180,7 +252,7 @@ const DeliveryModal = ({ route, navigation }) => {
 						</TouchableOpacity>
 					)}
 				</View>
-				{!showForm && (
+				{!showForm && !isEditphn && (
 					<View className='py-5 flex-row'>
 						<ScrollView
 							contentContainerStyle={{
@@ -202,38 +274,27 @@ const DeliveryModal = ({ route, navigation }) => {
 				{showForm && (
 					<View className='bg-gray-100 pt-7'>
 						<View className='gap-y-5'>
-							<View className='gap-1'>
-								<Text className='px-1 text-bold'>
-									Full Name
-								</Text>
-								<TextInput
-									onChangeText={(e) => {
-										setname(e)
-									}}
-									className='px-4 py-2 border-[0.5px] border-gray-300 rounded-lg'
-									placeholder=''
-								/>
-							</View>
-
-							<View className='gap-1'>
-								<View className='flex-row items-center'>
-									<Text className='px-1 text-bold'>
-										Phone No.
-									</Text>
-									<Text className='px-1 text-gray-400'>
-										(WhatsApp)
-									</Text>
+							{!isTnC && (
+								<View className='gap-1'>
+									<View className='flex-row items-center'>
+										<Text className='px-1 text-bold'>
+											Phone No.
+										</Text>
+										<Text className='px-1 text-gray-400'>
+											(WhatsApp)
+										</Text>
+									</View>
+									<TextInput
+										onChangeText={(e) => {
+											setphn(e)
+										}}
+										className='px-4 py-2  border-[0.5px] border-gray-300 rounded-lg'
+										keyboardType='numeric'
+										maxLength={10}
+										placeholder=''
+									/>
 								</View>
-								<TextInput
-									onChangeText={(e) => {
-										setphn(e)
-									}}
-									className='px-4 py-2  border-[0.5px] border-gray-300 rounded-lg'
-									keyboardType='numeric'
-									maxLength={10}
-									placeholder=''
-								/>
-							</View>
+							)}
 
 							<View className='flex-row items-center justify-between'>
 								<View className='gap-1 mr-5 flex-1'>
@@ -531,25 +592,31 @@ const DeliveryModal = ({ route, navigation }) => {
 														Phone Number :
 													</Text>
 													<Text className='text-gray-500 text-sm font-bold'>
-														{phn}
+														{isEditphn
+															? editphn
+															: phn}
 													</Text>
 												</View>
-												<View className='px-1 justify-between'>
-													<Text className='text-xs text-gray-400'>
-														Room No. :
-													</Text>
-													<Text className='text-gray-500 text-sm font-bold'>
-														{room}
-													</Text>
-												</View>
-												<View className='px-1 pb-2 justify-between'>
-													<Text className='text-xs text-gray-400'>
-														Hostel :
-													</Text>
-													<Text className='text-gray-500 text-sm font-bold'>
-														{hostel}
-													</Text>
-												</View>
+												{!isEditphn && (
+													<>
+														<View className='px-1 justify-between'>
+															<Text className='text-xs text-gray-400'>
+																Room No. :
+															</Text>
+															<Text className='text-gray-500 text-sm font-bold'>
+																{room}
+															</Text>
+														</View>
+														<View className='px-1 pb-2 justify-between'>
+															<Text className='text-xs text-gray-400'>
+																Hostel :
+															</Text>
+															<Text className='text-gray-500 text-sm font-bold'>
+																{hostel}
+															</Text>
+														</View>
+													</>
+												)}
 											</View>
 											<View className='flex-row gap-1 mt-3 items-center'>
 												<Pressable
@@ -563,7 +630,11 @@ const DeliveryModal = ({ route, navigation }) => {
 													</Text>
 												</Pressable>
 												<Pressable
-													onPress={handleProceed}
+													onPress={
+														isEditphn
+															? editPhnNo
+															: handleProceed
+													}
 													className='flex-row flex-1 justify-center items-center gap-x-1 p-4 bg-gray-800 rounded-lg'
 												>
 													<Text className='text-gray-50 text-center font-bold'>
@@ -576,6 +647,39 @@ const DeliveryModal = ({ route, navigation }) => {
 								</View>
 							</View>
 						</Modal>
+					</>
+				)}
+				{isEditphn && !showForm && (
+					<>
+						<View className='gap-1 mt-7'>
+							<View className='flex-row items-center'>
+								<Text className='px-1 text-bold'>
+									Phone No.
+								</Text>
+								<Text className='px-1 text-gray-400'>
+									(WhatsApp)
+								</Text>
+							</View>
+							<TextInput
+								onChangeText={(e) => {
+									seteditphn(e)
+								}}
+								className='px-4 py-2  border-[0.5px] border-gray-300 rounded-lg'
+								keyboardType='numeric'
+								maxLength={10}
+								placeholder=''
+							/>
+						</View>
+						<TouchableOpacity
+							className='py-5 mt-7 bg-orange-400 rounded-lg'
+							onPress={() => {
+								setModalVisible(true)
+							}}
+						>
+							<Text className='text-center font-bold text-gray-50'>
+								Edit Phone Details
+							</Text>
+						</TouchableOpacity>
 					</>
 				)}
 			</ScrollView>

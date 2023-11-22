@@ -7,7 +7,7 @@ import {
 	XCircleIcon,
 } from "react-native-heroicons/solid"
 
-const OrderModal = ({ status, navigation }) => {
+const OrderModal = ({ status }) => {
 	const orderStatus = [
 		{
 			status: true,

@@ -7,15 +7,20 @@ import {
 	ActivityIndicator,
 	Image,
 } from "react-native"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { MagnifyingGlassIcon } from "react-native-heroicons/outline"
 import SingleActiveOrder from "../components/SingleActiveOrder"
 import firestore from "@react-native-firebase/firestore"
 import { firebase } from "@react-native-firebase/auth"
+import SortnFilter from "../components/SortnFilter"
+import { useFocusEffect } from "@react-navigation/native"
 
 const MyOrdersDel = () => {
 	const [isloading, setloading] = useState(false)
 	const [data, setdata] = useState(null)
+	const [sort, setSort] = useState("recent")
+	const [filter, setFilter] = useState("all")
+	const [filtermyOrders, setfiltermyOrders] = useState(null)
 	const [myOrders, setmyOrders] = useState(null)
 	const contractRef = firestore().collection("ContractDetails").doc("active")
 	useEffect(() => {
@@ -37,6 +42,33 @@ const MyOrdersDel = () => {
 		sortMyOrders?.sort((a, b) => b.timeAdded - a.timeAdded)
 		setmyOrders(sortMyOrders)
 	}, [data])
+	const filterer = (arr, hostel) => {
+		if (hostel === "all") return arr
+		return arr?.filter((item) => {
+			return item.owner_info.hostel === hostel
+		})
+	}
+	useEffect(() => {
+		sort === "recent"
+			? setfiltermyOrders(filterer(myOrders, filter))
+			: sort === "lth"
+			? setfiltermyOrders(
+					filterer(
+						myOrders?.sort(
+							(a, b) => b.order_data.cp - a.order_data.cp
+						),
+						filter
+					)
+			  )
+			: setfiltermyOrders(
+					filterer(
+						myOrders?.sort(
+							(a, b) => a.order_data.cp - b.order_data.cp
+						),
+						filter
+					)
+			  )
+	}, [myOrders, filter, sort])
 	return (
 		<View>
 			{isloading && (
@@ -46,15 +78,14 @@ const MyOrdersDel = () => {
 			)}
 			{!isloading && myOrders?.length > 0 && (
 				<>
-					<View className='my-4 mx-2 p-2 items-center justify-between bg-gray-200 border-[0.5px] border-gray-400 rounded-xl flex-row'>
-						<MagnifyingGlassIcon size={25} color='black' />
-						<TextInput
-							onChangeText={(e) => {}}
-							className='flex-1 px-2'
-							type='text'
-							placeholder='Search here...'
-						/>
+					<View className='my-4 mx-2 p-2 items-end justify-between'>
+						<SortnFilter setFilter={setFilter} setSort={setSort} />
 					</View>
+					{data && filtermyOrders?.length === 0 && (
+						<Text className='text-gray-400 text-center'>
+							No Active Orders for Selected Filter...
+						</Text>
+					)}
 					<ScrollView
 						showsVerticalScrollIndicator={false}
 						contentContainerStyle={{
@@ -62,10 +93,10 @@ const MyOrdersDel = () => {
 							paddingBottom: 150,
 						}}
 					>
-						{myOrders?.map((order, { idx }) => (
+						{filtermyOrders?.map((order, { idx }) => (
 							<SingleActiveOrder
 								mine={true}
-								key={idx}
+								key={order?.id}
 								data={order}
 							/>
 						))}

@@ -4,6 +4,8 @@ import LoginnSignUp from "../screens/Login&SignUp"
 import OnboardingScreen from "../screens/OnboardingScreen"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import Tabs from "./Tabs"
+import DelCart from "../screens/DelCart"
+import Header from "../components/Header"
 
 const MasterNav = () => {
 	const [isAppFirstLaunched, setIsAppFirstLaunched] = React.useState(null)
@@ -39,6 +41,20 @@ const MasterNav = () => {
 				/>
 				<Stack.Screen
 					options={{
+						header: ({ route, navigation }) => (
+							<Header
+								title='Checkout'
+								back={false}
+								logout={false}
+							/>
+						),
+					}}
+					name='DeliveryCart'
+					component={DelCart}
+				/>
+				<Stack.Screen
+					options={{
+						gestureEnabled: false,
 						headerShown: false,
 					}}
 					name='Main'

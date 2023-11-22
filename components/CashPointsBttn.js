@@ -1,4 +1,4 @@
-import { TouchableOpacity } from "react-native"
+import { TouchableOpacity, View } from "react-native"
 import React, { useEffect, useState } from "react"
 import { PlusIcon } from "react-native-heroicons/outline"
 import {
@@ -8,11 +8,8 @@ import {
 } from "react-native-google-mobile-ads"
 import firestore from "@react-native-firebase/firestore"
 import { firebase as firebaseAuth } from "@react-native-firebase/auth"
-import { LinearGradient } from "expo-linear-gradient"
 
-const adUnitId = __DEV__
-	? TestIds.REWARDED
-	: "ca-app-pub-7209361652520357/6276108350"
+const adUnitId = TestIds.REWARDED
 
 const rewarded = RewardedAd.createForAdRequest(adUnitId, {
 	requestNonPersonalizedAdsOnly: true,
@@ -70,14 +67,9 @@ const CashPointsBttn = () => {
 			}}
 			className=' justify-center'
 		>
-			<LinearGradient
-				className=' justify-center p-3 rounded-xl'
-				colors={["#7F8C8D", "#000000"]}
-				start={{ x: 0, y: 0.5 }}
-				end={{ x: 1, y: 0.5 }}
-			>
+			<View className=' justify-center bg-orange-400 p-3 rounded-xl'>
 				<PlusIcon size={20} color='white' />
-			</LinearGradient>
+			</View>
 		</TouchableOpacity>
 	)
 }
